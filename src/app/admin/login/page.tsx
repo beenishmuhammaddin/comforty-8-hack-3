@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
 import Image from "next/image"
-
+// my original is different this is global password and global username
 const ADMIN_USERNAME = "admin"
 const ADMIN_PASSWORD = "admin123"
 

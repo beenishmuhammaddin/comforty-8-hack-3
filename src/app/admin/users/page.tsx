@@ -17,9 +17,9 @@ interface User {
 export default function UsersPage() {
   // const [users, setUsers] = useState<User[]>([]) //Removed useState for users
   const users: User[] = [
-    { _id: "1", username: "john_doe", email: "john@example.com" },
-    { _id: "2", username: "jane_smith", email: "jane@example.com" },
-    { _id: "3", username: "bob_johnson", email: "bob@example.com" },
+    { _id: "1", username: "hina", email: "hina@example.com" },
+    { _id: "2", username: "johny_walker", email: "jone@example.com" },
+    { _id: "3", username: "robinson", email: "rob@example.com" },
   ]
   const { user } = useAuth()
   const router = useRouter()

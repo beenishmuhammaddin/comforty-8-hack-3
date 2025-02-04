@@ -1,47 +1,58 @@
-"use client"
+"use client";
 
-import { useEffect } from "react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { useAuth } from "@/contexts/auth-context"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-// import Loader from "../Loader" //Removed Loader import
+import { useEffect, useState } from "react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/auth-context";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Loader from "@/app/admin/Loader"; // Re-added loader
 
 interface Order {
-  _id: string
-  orderNumber: string
+  _id: string;
+  orderNumber: string;
   customer: {
-    name: string
-  }
-  status: string
-  totalAmount: number
+    name: string;
+  };
+  status: string;
+  totalAmount: number;
 }
 
 export default function OrdersPage() {
-  // const [orders, setOrders] = useState<Order[]>([]) //Removed useState for orders
-  const { user } = useAuth()
-  const router = useRouter()
+  const { user } = useAuth();
+  const router = useRouter();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!user) {
-      router.push("/admin/login")
+      router.replace("/admin/login"); // Ensures smooth redirection
+      return;
     }
-  }, [user, router])
 
-  //Removed useEffect hook that fetches orders data
+    // Fetch orders dynamically
+    const fetchOrders = async () => {
+      try {
+        const response = await fetch("/api/orders"); // Adjust endpoint as needed
+        if (!response.ok) throw new Error("Failed to fetch orders");
+        const data = await response.json();
+        setOrders(data);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+   
+//Removed useEffect hook that fetches orders data
 
-  const orders: Order[] = [
-    { _id: "1", orderNumber: "ORD001", customer: { name: "John Doe" }, status: "Processing", totalAmount: 99.99 },
-    { _id: "2", orderNumber: "ORD002", customer: { name: "Jane Smith" }, status: "Shipped", totalAmount: 149.99 },
-    { _id: "3", orderNumber: "ORD003", customer: { name: "Bob Johnson" }, status: "Delivered", totalAmount: 79.99 },
-  ]
 
-  if (!user) {
-    return null
-  }
+    fetchOrders();
+  }, [user, router]);
 
-  //Removed the isLoading check and Loader component
+  if (!user) return null;
+
+  if (isLoading) return <Loader />;
 
   return (
     <div className="space-y-6">
@@ -60,21 +71,29 @@ export default function OrdersPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {orders.map((order) => (
-            <TableRow key={order._id}>
-              <TableCell>{order.orderNumber}</TableCell>
-              <TableCell>{order.customer.name}</TableCell>
-              <TableCell>{order.status}</TableCell>
-              <TableCell>${order.totalAmount.toFixed(2)}</TableCell>
-              <TableCell>
-                <Button asChild variant="outline" className="mr-2">
-                  <Link href={`/admin/orders/${order._id}`}>View Details</Link>
-                </Button>
+          {orders.length > 0 ? (
+            orders.map((order) => (
+              <TableRow key={order._id}>
+                <TableCell>{order.orderNumber}</TableCell>
+                <TableCell>{order.customer.name}</TableCell>
+                <TableCell>{order.status}</TableCell>
+                <TableCell>${order.totalAmount.toFixed(2)}</TableCell>
+                <TableCell>
+                  <Button asChild variant="outline" className="mr-2">
+                    <Link href={`/admin/orders/${order._id}`}>View Details</Link>
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={5} className="text-center text-gray-500">
+                No orders found.
               </TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }
